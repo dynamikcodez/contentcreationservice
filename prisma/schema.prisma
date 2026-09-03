@@ -1,0 +1,263 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  name          String?
+  role          String          @default("USER") // USER, OPERATOR, DESIGNER
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  subscriptions Subscription[]
+  brands        Brand[]
+  providerConns AIProviderConnection[]
+  jobs          GenerationJob[]
+  usages        GenerationUsage[]
+  designerReqs  DesignerRequest[]
+  feedbacks     UserFeedback[]
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            String   @default("TRY_IT") // TRY_IT, MONTHLY, RETAINER
+  status          String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  billingCycle    String   @default("MONTHLY")
+  paystackSubCode String?
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Brand {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  industry       String
+  location       String
+  usp            String
+  description    String
+  audience       String
+  tone           String          @default("Let CCS determine")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  assets         BrandAsset[]
+  brandDna       BrandDNA?
+  playbooks      Playbook[]
+  posts          Post[]
+  decisions      CreativeDecision[]
+  jobs           GenerationJob[]
+  designerReqs   DesignerRequest[]
+}
+
+model BrandAsset {
+  id        String   @id @default(uuid())
+  brandId   String
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  type      String   // LOGO, PRODUCT, FOUNDER, REFERENCE, GRAPHIC, OTHER
+  url       String
+  mimeType  String   @default("image/png")
+  size      Int      @default(0)
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+}
+
+model BrandDNA {
+  id                             String   @id @default(uuid())
+  brandId                        String   @unique
+  brand                          Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brandPersonality               String   // JSON string array
+  positioning                    String
+  audiencePsychology             String
+  emotionalTerritory             String   // JSON string array
+  verbalIdentity                 String   // JSON object
+  visualPersonality              String   // JSON object
+  colourSystem                   String   // JSON object (observed vs recommended)
+  typographyDirection            String
+  photographyDirection           String
+  compositionDirection           String
+  graphicLanguage                String
+  textureLanguage                String
+  culturalSignals                String   // JSON array
+  creativeOpportunities          String   // JSON array
+  creativeConstraints            String   // JSON array
+  thingsToAvoid                  String   // JSON array
+  competitorConventionsToAvoid   String   // JSON array
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+}
+
+model Playbook {
+  id            String   @id @default(uuid())
+  brandId       String
+  brand         Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  summary       String
+  growthTactics String   // JSON array
+  pricingTiers  String   // JSON array
+  narrativeArc  String   // JSON array
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Post {
+  id                 String           @id @default(uuid())
+  brandId            String
+  brand              Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  dayNumber          Int
+  pillar             String
+  postType           String
+  strategicObjective String
+  hook               String
+  caption            String
+  cta                String
+  visualStatus       String           @default("NOT_GENERATED") // NOT_GENERATED, GENERATING, READY, FAILED
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  concepts           CreativeConcept[]
+  generatedVisuals   GeneratedVisual[]
+  jobs               GenerationJob[]
+  designerReqs       DesignerRequest[]
+}
+
+model CreativeConcept {
+  id                     String            @id @default(uuid())
+  postId                 String
+  post                   Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  strategicObjective     String
+  coreIdea               String
+  visualMetaphor         String
+  composition            String
+  subject                String
+  environment            String
+  lighting               String
+  colourBehaviour        String
+  typographyDirection    String
+  graphicTreatment       String
+  brandAssets            String            // JSON array of URLs
+  culturalContext        String
+  reasonItFitsBrand      String
+  scrollStoppingMechanism String
+  promptText             String
+  createdAt              DateTime          @default(now())
+
+  visuals                GeneratedVisual[]
+}
+
+model GeneratedVisual {
+  id          String           @id @default(uuid())
+  postId      String
+  post        Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  conceptId   String?
+  concept     CreativeConcept? @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  provider    String           @default("GEMINI") // GEMINI, BYO_PROVIDER, MOCK
+  imageUrl    String
+  promptUsed  String
+  criticScore String?          // JSON string object
+  status      String           @default("READY") // READY, REJECTED, REVISED
+  createdAt   DateTime         @default(now())
+}
+
+model GenerationJob {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandId     String
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  postId      String?
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  providerType String  @default("GEMINI")
+  status      String   @default("QUEUED") // QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED
+  attempts    Int      @default(0)
+  inputData   String?  // JSON
+  resultData  String?  // JSON
+  error       String?
+  createdAt   DateTime @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+}
+
+model GenerationUsage {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandId    String
+  postId     String?
+  provider   String
+  cost       Float    @default(0.0)
+  durationMs Int      @default(0)
+  timestamp  DateTime @default(now())
+}
+
+model AIProviderConnection {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider            String   // GEMINI, OPENAI, STABILITY, REPLICATE
+  encryptedCredential String
+  status              String   @default("ACTIVE") // ACTIVE, INVALID, DISCONNECTED
+  lastValidatedAt     DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model CreativeDecision {
+  id           String   @id @default(uuid())
+  brandId      String
+  brand        Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  decisionType String   // ACCEPT_CONCEPT, REJECT_CONCEPT, REGENERATE_IMAGE, PREFERRED_LAYOUT, REJECTED_CONVENTION
+  value        String   // JSON or string detail
+  context      String?
+  createdAt    DateTime @default(now())
+}
+
+model UserFeedback {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandId   String?
+  postId    String?
+  rating    Int      @default(5)
+  comments  String?
+  createdAt DateTime @default(now())
+}
+
+model DesignerRequest {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandId             String
+  brand               Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  postId              String?
+  post                Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  brief               String   // JSON string brief
+  status              String   @default("SUBMITTED") // DRAFT, SUBMITTED, REVIEWING, IN_PROGRESS, DELIVERED, CANCELLED
+  referenceAssets     String?  // JSON array
+  preferredDirection String?
+  rejectedDirections String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PlanLimits {
+  id                    String   @id @default("DEFAULT")
+  planName              String   @unique // TRY_IT, MONTHLY, RETAINER
+  calendarGenerations   Int      @default(1)
+  singleDayGenerations  Int      @default(5)
+  imageGenerations      Int      @default(10)
+  imageEdits            Int      @default(15)
+  brands                Int      @default(1)
+  storageMb             Int      @default(100)
+  designerRequests      Int      @default(0)
+  updatedAt             DateTime @updatedAt
+}
