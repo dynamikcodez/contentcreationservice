@@ -274,7 +274,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
               className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition"
             >
               <MessageSquare className="w-4 h-4" />
-              <span>Talk to Iyiola (Ops & Support: 07032293819)</span>
+              <span>Talk to Iyiola (Ops & Support: +234 703 229 3819)</span>
             </button>
           </div>
         </div>

@@ -153,7 +153,7 @@ export const SupportSopView: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-100 group-hover:text-emerald-400 transition">Iyiola</div>
-                  <div className="text-[11px] text-slate-400">07032293819 (+234 703 229 3819)</div>
+                  <div className="text-[11px] text-slate-400">+234 703 229 3819</div>
                   <span className="text-[9px] font-semibold text-emerald-400">Ops & Escalations →</span>
                 </div>
               </a>
