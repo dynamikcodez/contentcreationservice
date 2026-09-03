@@ -41,7 +41,17 @@ export const DEMO_BRANDS = [
 
 export async function getSeedBrandData(brandId: string) {
   const demo = DEMO_BRANDS.find((b) => b.id === brandId) || DEMO_BRANDS[0];
-  const brandDna = await generateBrandDNA(demo);
+  const brandDna = await generateBrandDNA({
+    brandName: demo.name,
+    industry: demo.industry,
+    location: demo.location,
+    usp: demo.usp,
+    description: demo.description,
+    audience: demo.audience,
+    tone: demo.tone,
+    pillars: demo.pillars,
+    assets: [],
+  });
   const pricingTiers = generatePsychologicalPricing(demo.name, demo.industry);
   const calendar = generate20DayCalendar(demo.name, brandDna);
 

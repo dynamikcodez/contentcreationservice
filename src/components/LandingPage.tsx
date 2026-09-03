@@ -11,7 +11,12 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSelectPlan }) => {
   const handleTalkToIyiola = () => {
     const text = encodeURIComponent("Hello Iyiola, I'm interested in the CCS Ultra Retainer for my business. I need a bespoke brand strategy built around my business.");
-    window.open(`https://wa.me/2348000000000?text=${text}`, '_blank');
+    window.open(`https://wa.me/2347032293819?text=${text}`, '_blank');
+  };
+
+  const handleTalkToNeye = () => {
+    const text = encodeURIComponent("Hello Neye, I have an inquiry regarding CCS Ultra onboarding and subscriptions.");
+    window.open(`https://wa.me/2349162716205?text=${text}`, '_blank');
   };
 
   return (
@@ -253,15 +258,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
         <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 border border-indigo-900/80 p-8 rounded-3xl text-center space-y-4 shadow-2xl">
           <h3 className="text-xl font-bold text-slate-100">Some businesses need something more particular.</h3>
           <p className="text-xs text-slate-300 max-w-xl mx-auto leading-relaxed">
-            If you want a creative strategy built around your business — not a template — talk directly to Iyiola.
+            If you want a creative strategy built around your business — not a template — talk directly to our team.
           </p>
-          <button
-            onClick={handleTalkToIyiola}
-            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 mx-auto shadow-lg shadow-emerald-600/20 transition"
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Talk to Iyiola on WhatsApp</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              onClick={handleTalkToIyiola}
+              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Talk to Iyiola (Lead Strategist: 07032293819)</span>
+            </button>
+
+            <button
+              onClick={handleTalkToNeye}
+              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Talk to Neye (Ops: +234 916 271 6205)</span>
+            </button>
+          </div>
         </div>
       </section>
 

@@ -89,26 +89,75 @@ export const SupportSopView: React.FC = () => {
         </div>
 
         {/* Right Active SOP Guide Content */}
-        <div className="md:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
-          <div className="flex items-center gap-3 border-b border-slate-800/80 pb-3">
-            {sops[activeGuide].icon}
-            <div>
-              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-                {sops[activeGuide].category}
-              </span>
-              <h2 className="text-base font-bold text-slate-100">{sops[activeGuide].title}</h2>
+        <div className="md:col-span-2 space-y-4">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+            <div className="flex items-center gap-3 border-b border-slate-800/80 pb-3">
+              {sops[activeGuide].icon}
+              <div>
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                  {sops[activeGuide].category}
+                </span>
+                <h2 className="text-base font-bold text-slate-100">{sops[activeGuide].title}</h2>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {sops[activeGuide].steps.map((step, sIdx) => (
+                <div key={sIdx} className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    {sIdx + 1}
+                  </span>
+                  <p className="text-xs text-slate-300 leading-relaxed">{step}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-3">
-            {sops[activeGuide].steps.map((step, sIdx) => (
-              <div key={sIdx} className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                  {sIdx + 1}
+          {/* Direct Operator & Executive Support Card */}
+          <div className="bg-gradient-to-r from-amber-500/10 via-slate-900 to-indigo-500/10 border border-amber-500/30 p-6 rounded-3xl space-y-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
+                  DIRECT HUMAN ESCALATION
                 </span>
-                <p className="text-xs text-slate-300 leading-relaxed">{step}</p>
+                <h3 className="text-sm font-bold text-slate-100 mt-1">Talk to Senior Strategy & Operations</h3>
+                <p className="text-xs text-slate-400">Need custom strategy review, priority design support, or payment confirmation?</p>
               </div>
-            ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <a
+                href="https://wa.me/2349162716205?text=Hello%20Neye%2C%20I%20need%20support%20on%20CCS%20Ultra."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-950 hover:bg-slate-800 border border-amber-500/30 p-3.5 rounded-2xl flex items-center gap-3 transition group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0">
+                  N
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-100 group-hover:text-emerald-400 transition">Neye</div>
+                  <div className="text-[11px] text-slate-400">+234 916 271 6205</div>
+                  <span className="text-[9px] font-semibold text-emerald-400">Ops & Escalations →</span>
+                </div>
+              </a>
+
+              <a
+                href="https://wa.me/2347032293819?text=Hello%20Iyiola%2C%20I%20would%20like%20to%20discuss%20a%20bespoke%20brand%20strategy%20on%20CCS%20Ultra."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 p-3.5 rounded-2xl flex items-center gap-3 transition group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-xs shrink-0">
+                  I
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-100 group-hover:text-indigo-400 transition">Iyiola</div>
+                  <div className="text-[11px] text-slate-400">07032293819 (+234 703 229 3819)</div>
+                  <span className="text-[9px] font-semibold text-indigo-400">Lead Strategist →</span>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </div>

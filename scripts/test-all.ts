@@ -48,6 +48,7 @@ async function runAllTests() {
       audience: 'Women 25-45',
       tone: 'Luxury & Aspirational',
       pillars: ['Barrier Repair', 'Botanical Science'],
+      assets: [],
     });
     assert(Array.isArray(dna.brandPersonality) && dna.brandPersonality.length > 0, 'Brand DNA generates personality array');
     assert(dna.colourSystem.recommendedPalette.length >= 3, 'Brand DNA generates recommended colour palette');
@@ -76,6 +77,7 @@ async function runAllTests() {
       audience: 'Students',
       tone: 'Street-Smart',
       pillars: ['Campus Survival', 'Crunch ASMR'],
+      assets: [],
     });
     const calendar = generate20DayCalendar('Gidi Bites', dna);
     assert(calendar.length === 20, 'Calendar Engine generates 20-day strategic post sequence');
@@ -97,6 +99,7 @@ async function runAllTests() {
       audience: 'SMEs',
       tone: 'Corporate',
       pillars: ['Compliance'],
+      assets: [],
     });
     const concept = generateCreativeConcept({
       brandDna: dna,
@@ -130,6 +133,7 @@ async function runAllTests() {
       audience: 'Foodies',
       tone: 'Warm',
       pillars: ['Baking'],
+      assets: [],
     });
     const single = generateSingleDayPost('Test', dna, { pillar: 'Flash Offer', context: 'Weekend deal' });
     assert(single.postType === 'Spotlight Post', 'Single day post generated successfully');

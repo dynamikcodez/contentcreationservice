@@ -337,11 +337,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     const singlePost = generateSingleDayPost(activeBrand.name, activeBrandDna, { pillar, context });
     const newPostId = `single-${Date.now()}`;
 
+    const { dayNumber: _unusedDay, ...singlePostFields } = singlePost;
     const newPostItem: PostItem = {
       id: newPostId,
       dayNumber: get().posts.length + 1,
       phase: 'SINGLE SPOTLIGHT',
-      ...singlePost,
+      ...singlePostFields,
       visualStatus: 'NOT_GENERATED',
     };
 
