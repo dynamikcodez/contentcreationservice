@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { BrandDNAOutput, CreativeConceptOutput, CreativeCriticOutput } from '@/types/ai';
 import { DEMO_BRANDS, getSeedBrandData } from '@/lib/seeds';
 import { GeminiImageProvider } from '@/lib/ai/providers/GeminiImageProvider';
@@ -92,7 +93,9 @@ export interface AppState {
   recordCreativeDecision: (type: 'ACCEPT' | 'REJECT', conceptSummary: string) => void;
 }
 
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
   userId: 'usr-default-sme',
   userName: 'Naija Business Owner',
   userEmail: 'owner@sme.ng',
@@ -394,4 +397,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
     }));
   },
-}));
+}),
+    {
+      name: 'ccs-ultra-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);

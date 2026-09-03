@@ -28,9 +28,12 @@ export default function HomePage() {
   const [showOperator, setShowOperator] = useState<boolean>(false);
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
-  // Initialize seed brand data on mount
+  // Initialize seed brand data on mount only if stored state is empty
   useEffect(() => {
-    selectBrand(activeBrandId);
+    const currentState = useAppStore.getState();
+    if (!currentState.posts || currentState.posts.length === 0) {
+      selectBrand(activeBrandId);
+    }
   }, []);
 
   const handleStartGameplan = () => {
