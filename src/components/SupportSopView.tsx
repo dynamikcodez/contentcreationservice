@@ -127,34 +127,34 @@ export const SupportSopView: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <a
-                href="https://wa.me/2349162716205?text=Hello%20Neye%2C%20I%20need%20support%20on%20CCS%20Ultra."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-slate-950 hover:bg-slate-800 border border-amber-500/30 p-3.5 rounded-2xl flex items-center gap-3 transition group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0">
-                  N
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-100 group-hover:text-emerald-400 transition">Neye</div>
-                  <div className="text-[11px] text-slate-400">+234 916 271 6205</div>
-                  <span className="text-[9px] font-semibold text-emerald-400">Ops & Escalations →</span>
-                </div>
-              </a>
-
-              <a
-                href="https://wa.me/2347032293819?text=Hello%20Iyiola%2C%20I%20would%20like%20to%20discuss%20a%20bespoke%20brand%20strategy%20on%20CCS%20Ultra."
+                href="https://wa.me/2349162716205?text=Hello%20Neye%2C%20I%20would%20like%20to%20discuss%20a%20bespoke%20brand%20strategy%20on%20CCS%20Ultra."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 p-3.5 rounded-2xl flex items-center gap-3 transition group"
               >
                 <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-xs shrink-0">
+                  N
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-100 group-hover:text-indigo-400 transition">Neye</div>
+                  <div className="text-[11px] text-slate-400">+234 916 271 6205</div>
+                  <span className="text-[9px] font-semibold text-indigo-400">Lead Strategist →</span>
+                </div>
+              </a>
+
+              <a
+                href="https://wa.me/2347032293819?text=Hello%20Iyiola%2C%20I%20need%20onboarding%20and%20operational%20support%20on%20CCS%20Ultra."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-950 hover:bg-slate-800 border border-emerald-500/30 p-3.5 rounded-2xl flex items-center gap-3 transition group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs shrink-0">
                   I
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-100 group-hover:text-indigo-400 transition">Iyiola</div>
+                  <div className="text-xs font-bold text-slate-100 group-hover:text-emerald-400 transition">Iyiola</div>
                   <div className="text-[11px] text-slate-400">07032293819 (+234 703 229 3819)</div>
-                  <span className="text-[9px] font-semibold text-indigo-400">Lead Strategist →</span>
+                  <span className="text-[9px] font-semibold text-emerald-400">Ops & Escalations →</span>
                 </div>
               </a>
             </div>

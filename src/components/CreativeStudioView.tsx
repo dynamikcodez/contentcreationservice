@@ -129,7 +129,7 @@ export const CreativeStudioView: React.FC = () => {
               <h3 className="text-sm font-bold">Human Designer Escalation Queue</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              When AI is not enough for complex packaging, custom typography, or heavy video editing, requests route directly to Iyiola & vetted senior creative designers with complete Brand DNA context pre-loaded.
+              When AI is not enough for complex packaging, custom typography, or heavy video editing, requests route directly to Neye & vetted senior creative designers with complete Brand DNA context pre-loaded.
             </p>
           </div>
 
