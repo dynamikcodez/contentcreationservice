@@ -96,7 +96,7 @@ export interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-  userId: 'usr-default-sme',
+      userId: 'usr-default-sme',
   userName: 'Naija Business Owner',
   userEmail: 'owner@sme.ng',
   plan: 'TRY_IT',
@@ -396,11 +396,10 @@ export const useAppStore = create<AppState>()(
         rejectedConcepts: type === 'REJECT' ? [...state.creativeMemory.rejectedConcepts, conceptSummary] : state.creativeMemory.rejectedConcepts,
       },
     }));
-  },
-}),
-    {
-      name: 'ccs-ultra-storage',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-);
+    },
+  }),
+  {
+    name: 'ccs-ultra-storage',
+    storage: createJSONStorage(() => localStorage),
+  }
+));
