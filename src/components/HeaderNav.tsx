@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { Sparkles, Key, ShieldCheck, ChevronDown, Check, Zap, Home } from 'lucide-react';
+import { DEMO_BRANDS } from '@/lib/seeds';
 
 interface HeaderNavProps {
   onOpenOperator: () => void;
@@ -18,7 +19,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   const { activeBrandId, brands, selectBrand, plan, setPlan, byoApiKey } = useAppStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const activeBrand = brands.find((b) => b.id === activeBrandId) || brands[0];
+  const safeBrands = Array.isArray(brands) && brands.length > 0 ? brands : DEMO_BRANDS;
+  const activeBrand = safeBrands.find((b) => b && b.id === activeBrandId) || safeBrands[0] || DEMO_BRANDS[0];
 
   return (
     <header className="sticky top-0 z-40 bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
@@ -53,7 +55,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 Switch Active Brand
               </div>
               <div className="space-y-1">
-                {brands.map((b) => (
+                {safeBrands.map((b) => (
                   <button
                     key={b.id}
                     onClick={() => {

@@ -29,6 +29,7 @@ import {
   downloadAllFlyersAsPng,
   copyFullCalendarForWhatsApp,
 } from '@/lib/exportUtils';
+import { DEMO_BRANDS } from '@/lib/seeds';
 
 interface CalendarFeedViewProps {
   onOpenEditModal: (post: PostItem) => void;
@@ -53,8 +54,10 @@ export const CalendarFeedView: React.FC<CalendarFeedViewProps> = ({
     setFeedbackToast,
   } = useAppStore();
 
-  const brand = brands.find((b) => b.id === activeBrandId) || brands[0];
-  const brandName = brand?.name || 'My Brand';
+  const safePosts = Array.isArray(posts) && posts.length > 0 ? posts : [];
+  const safeBrands = Array.isArray(brands) && brands.length > 0 ? brands : DEMO_BRANDS;
+  const brand = safeBrands.find((b) => b && b.id === activeBrandId) || safeBrands[0] || DEMO_BRANDS[0];
+  const brandName = brand?.name || 'AURA NAIJA';
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showSingleDayForm, setShowSingleDayForm] = useState(false);
@@ -67,7 +70,7 @@ export const CalendarFeedView: React.FC<CalendarFeedViewProps> = ({
   const [isBatchDownloading, setIsBatchDownloading] = useState(false);
   const [whatsAppCopied, setWhatsAppCopied] = useState(false);
 
-  const readyFlyersCount = posts.filter((p) => p.visualStatus === 'READY' && p.imageUrl).length;
+  const readyFlyersCount = safePosts.filter((p) => p && p.visualStatus === 'READY' && p.imageUrl).length;
 
   const handleCopyPost = (post: PostItem) => {
     const text = `DAY ${post.dayNumber} [${post.phase}]\n\nHOOK:\n${post.hook}\n\nCAPTION:\n${post.caption}\n\nCTA:\n${post.cta}`;
@@ -265,7 +268,7 @@ export const CalendarFeedView: React.FC<CalendarFeedViewProps> = ({
       {/* 20-DAY FEED VERTICAL CARDS */}
       {/* ========================================================================= */}
       <div className="space-y-6">
-        {posts.map((post) => (
+        {safePosts.filter(Boolean).map((post) => (
           <div
             key={post.id}
             className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-slate-700/80 transition duration-200"

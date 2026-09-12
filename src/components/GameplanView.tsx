@@ -3,21 +3,15 @@
 import React from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { Target, Compass, Palette, ShieldAlert, Sparkles, Zap, DollarSign, CheckCircle2, ArrowRight } from 'lucide-react';
+import { DEMO_BRANDS, DEFAULT_AURA_DNA } from '@/lib/seeds';
 
 export const GameplanView: React.FC = () => {
   const { activeBrandDna, brands, activeBrandId, pricingTiers } = useAppStore();
-  const brand = brands.find((b) => b.id === activeBrandId) || brands[0];
+  const safeBrands = Array.isArray(brands) && brands.length > 0 ? brands : DEMO_BRANDS;
+  const brand = safeBrands.find((b) => b && b.id === activeBrandId) || safeBrands[0] || DEMO_BRANDS[0];
+  const safeDna = activeBrandDna || (DEFAULT_AURA_DNA as any);
 
-  if (!activeBrandDna) {
-    return (
-      <div className="p-6 text-center text-slate-400">
-        <Sparkles className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-3" />
-        <p className="text-sm font-medium">Generating Brand DNA & Strategic Playbook...</p>
-      </div>
-    );
-  }
-
-  const { colourSystem, verbalIdentity, visualPersonality } = activeBrandDna;
+  const { colourSystem, verbalIdentity, visualPersonality } = safeDna;
 
   return (
     <div className="space-y-6 pb-24 max-w-4xl mx-auto px-4 pt-4 animate-in fade-in duration-300">
@@ -39,7 +33,7 @@ export const GameplanView: React.FC = () => {
           {brand.name}
         </h1>
         <p className="text-sm sm:text-base text-amber-300/90 font-medium mb-6 leading-relaxed max-w-2xl">
-          "{activeBrandDna.positioning}"
+          "{safeDna.positioning}"
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-800/80 pt-4 text-xs">
@@ -66,7 +60,7 @@ export const GameplanView: React.FC = () => {
             <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Brand Personality Traits</h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {activeBrandDna.brandPersonality.map((trait, i) => (
+            {safeDna.brandPersonality.map((trait: string, i: number) => (
               <span key={i} className="px-3 py-1 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-medium">
                 {trait}
               </span>
@@ -80,7 +74,7 @@ export const GameplanView: React.FC = () => {
             <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Emotional Territory</h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {activeBrandDna.emotionalTerritory.map((emo, i) => (
+            {safeDna.emotionalTerritory.map((emo: string, i: number) => (
               <span key={i} className="px-3 py-1 bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 rounded-xl text-xs font-medium">
                 {emo}
               </span>
@@ -107,7 +101,7 @@ export const GameplanView: React.FC = () => {
               Observed Brand Palette
             </span>
             <div className="flex items-center gap-2">
-              {colourSystem.observedPalette.map((hex, i) => (
+              {colourSystem.observedPalette.map((hex: string, i: number) => (
                 <div key={i} className="flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-lg shadow-inner border border-slate-700" style={{ backgroundColor: hex.includes('#') ? hex : '#475569' }} />
                   <span className="text-[9px] text-slate-400 font-mono">{hex}</span>
@@ -122,7 +116,7 @@ export const GameplanView: React.FC = () => {
               Recommended Art Direction Palette
             </span>
             <div className="flex items-center gap-2">
-              {colourSystem.recommendedPalette.map((hex, i) => (
+              {colourSystem.recommendedPalette.map((hex: string, i: number) => (
                 <div key={i} className="flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-lg shadow-inner border border-slate-700" style={{ backgroundColor: hex }} />
                   <span className="text-[9px] text-amber-300 font-mono">{hex}</span>
@@ -177,11 +171,11 @@ export const GameplanView: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-2">
           <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Photography Direction</h3>
-          <p className="text-xs text-slate-300 leading-relaxed">{activeBrandDna.photographyDirection}</p>
+          <p className="text-xs text-slate-300 leading-relaxed">{safeDna.photographyDirection}</p>
         </div>
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-2">
           <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Composition Rules</h3>
-          <p className="text-xs text-slate-300 leading-relaxed">{activeBrandDna.compositionDirection}</p>
+          <p className="text-xs text-slate-300 leading-relaxed">{safeDna.compositionDirection}</p>
         </div>
       </div>
 
@@ -192,7 +186,7 @@ export const GameplanView: React.FC = () => {
           <h2 className="text-xs font-bold uppercase tracking-wider">Visual Conventions & AI Slop to Avoid</h2>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeBrandDna.thingsToAvoid.map((avoidItem, i) => (
+          {safeDna.thingsToAvoid.map((avoidItem: string, i: number) => (
             <span key={i} className="px-3 py-1 bg-red-950/60 border border-red-900/60 text-red-300 rounded-xl text-xs font-medium">
               × {avoidItem}
             </span>

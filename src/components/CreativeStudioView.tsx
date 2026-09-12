@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { Palette, Sparkles, Layers, Image as ImageIcon, Sliders, UserCheck, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { DEMO_BRANDS } from '@/lib/seeds';
 
 export const CreativeStudioView: React.FC = () => {
   const { activeBrandDna, posts, designerRequests, activeBrandId, brands } = useAppStore();
   const [subSection, setSubSection] = useState<'strategy' | 'concepts' | 'artDirection' | 'visuals' | 'bespoke'>('artDirection');
 
-  const brand = brands.find((b) => b.id === activeBrandId) || brands[0];
-  const generatedVisuals = posts.filter((p) => p.visualStatus === 'READY' && p.imageUrl);
+  const safeBrands = Array.isArray(brands) && brands.length > 0 ? brands : DEMO_BRANDS;
+  const brand = safeBrands.find((b) => b && b.id === activeBrandId) || safeBrands[0] || DEMO_BRANDS[0];
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const generatedVisuals = safePosts.filter((p) => p && p.visualStatus === 'READY' && p.imageUrl);
 
   return (
     <div className="space-y-6 pb-28 max-w-4xl mx-auto px-4 pt-4 animate-in fade-in duration-300">

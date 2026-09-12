@@ -185,7 +185,7 @@ Negative Constraints: DO NOT include generic AI slop, purple gradients, glowing 
     };
   }
 
-  private generateBrandCalibratedSvg(input: ImageGenerationInput): string {
+  public generateBrandCalibratedSvg(input: ImageGenerationInput): string {
     const { brandDna, creativeConcept } = input;
     const palette = brandDna.colourSystem?.recommendedPalette || ['#1E1B4B', '#F59E0B', '#F3F4F6'];
     const primaryColor = palette[0] || '#1E1B4B';

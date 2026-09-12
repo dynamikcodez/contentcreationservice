@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { BrandDNAOutput, CreativeConceptOutput, CreativeCriticOutput } from '@/types/ai';
-import { DEMO_BRANDS, getSeedBrandData } from '@/lib/seeds';
+import { DEMO_BRANDS, getSeedBrandData, getInitialSeedBrandData } from '@/lib/seeds';
 import { GeminiImageProvider } from '@/lib/ai/providers/GeminiImageProvider';
 import { generateCreativeConcept, generateSingleDayPost } from '@/lib/ai/brandEngine';
 
@@ -30,6 +30,59 @@ export interface DesignerRequestItem {
   preferredDirection: string;
   createdAt: string;
 }
+
+// Pre-compute synchronous initial seed data so the application never mounts with empty/null state
+const defaultSeed = getInitialSeedBrandData();
+const defaultProvider = new GeminiImageProvider();
+export const defaultPosts: PostItem[] = defaultSeed.calendar.map((item, idx) => {
+  const concept = generateCreativeConcept({
+    brandDna: defaultSeed.brandDna,
+    postType: item.postType,
+    pillar: item.pillar,
+    strategicObjective: item.strategicObjective,
+    hook: item.hook,
+    caption: item.caption,
+  });
+
+  const isInitialReady = idx < 3;
+  let imageUrl: string | undefined = undefined;
+  if (isInitialReady) {
+    imageUrl = defaultProvider.generateBrandCalibratedSvg({
+      brandDna: defaultSeed.brandDna,
+      creativeConcept: concept,
+      brandName: defaultSeed.brand.name,
+      hook: item.hook,
+      cta: item.cta,
+      pillar: item.pillar,
+      dayNumber: item.dayNumber,
+    });
+  }
+
+  return {
+    id: `post-${defaultSeed.brand.id}-${item.dayNumber}`,
+    ...item,
+    visualStatus: isInitialReady ? ('READY' as const) : ('NOT_GENERATED' as const),
+    imageUrl,
+    creativeConcept: concept,
+    criticScore: isInitialReady
+      ? {
+          brandSpecificity: 88,
+          visualQuality: 92,
+          conceptStrength: 90,
+          assetIntegrity: 95,
+          composition: 89,
+          readability: 94,
+          distinctiveness: 91,
+          brandConsistency: 96,
+          aiSlopRisk: 5,
+          unnecessaryDecoration: 8,
+          approved: true,
+          critique: 'Clean botanical editorial flyer framing with strong typography contrast.',
+          recommendedRevision: 'Preserve bold headline hierarchy on mobile screens.',
+        }
+      : undefined,
+  };
+});
 
 export interface AppState {
   // User & Subscription
@@ -97,6 +150,7 @@ export interface AppState {
   setPlan: (plan: 'TRY_IT' | 'MONTHLY' | 'RETAINER') => void;
   setByoApiKey: (key: string) => void;
   recordCreativeDecision: (type: 'ACCEPT' | 'REJECT', conceptSummary: string) => void;
+  resetToDefaults: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -132,15 +186,25 @@ export const useAppStore = create<AppState>()(
     tone: b.tone,
   })),
 
-  activeBrandDna: null,
-  pricingTiers: [],
-  posts: [],
+  activeBrandDna: defaultSeed.brandDna,
+  pricingTiers: defaultSeed.pricingTiers,
+  posts: defaultPosts,
   designerRequests: [],
   creativeMemory: {
     acceptedConcepts: [],
     rejectedConcepts: [],
     preferredStyles: ['Editorial Photography', 'Natural Sunlight'],
     rejectedStyles: ['Generic AI Slop', 'Neon Glow'],
+  },
+
+  resetToDefaults: () => {
+    set({
+      activeBrandId: DEMO_BRANDS[0].id,
+      activeBrandDna: defaultSeed.brandDna,
+      pricingTiers: defaultSeed.pricingTiers,
+      posts: defaultPosts,
+      feedbackToast: 'Reset to standard 20-day marketing system!',
+    });
   },
 
   selectBrand: async (brandId: string) => {
@@ -446,7 +510,7 @@ export const useAppStore = create<AppState>()(
   },
 }),
   {
-    name: 'ccs-ultra-storage',
+    name: 'ccs-ultra-v6-store',
     storage: createJSONStorage(() => {
       if (typeof window === 'undefined') {
         return {
@@ -486,5 +550,30 @@ export const useAppStore = create<AppState>()(
       creativeMemory: state.creativeMemory,
       // Note: currentView is excluded from persist so navigation is always responsive and fresh
     }),
+    onRehydrateStorage: () => (state) => {
+      if (state) {
+        if (!state.posts || !Array.isArray(state.posts) || state.posts.length === 0) {
+          state.posts = defaultPosts;
+        }
+        if (!state.activeBrandDna) {
+          state.activeBrandDna = defaultSeed.brandDna;
+        }
+        if (!state.pricingTiers || !Array.isArray(state.pricingTiers) || state.pricingTiers.length === 0) {
+          state.pricingTiers = defaultSeed.pricingTiers;
+        }
+        if (!state.brands || !Array.isArray(state.brands) || state.brands.length === 0) {
+          state.brands = DEMO_BRANDS.map((b) => ({
+            id: b.id,
+            name: b.name,
+            industry: b.industry,
+            location: b.location,
+            usp: b.usp,
+            description: b.description,
+            audience: b.audience,
+            tone: b.tone,
+          }));
+        }
+      }
+    },
   }
 ));

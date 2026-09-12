@@ -39,8 +39,64 @@ export const DEMO_BRANDS = [
   },
 ];
 
+export const DEFAULT_AURA_DNA = {
+  brandPersonality: ['Restrained', 'Botanical Precision', 'Unapologetic Quality', 'Warm Editorial'],
+  positioning: 'AURA NAIJA is the definitive botanical skincare ritual engineered specifically for melanin-rich skin in tropical climates.',
+  audiencePsychology: 'Disillusioned by synthetic products promising miracle glow; seeks transparent ingredient formulas, dermatologist backing, and authentic peer transformation proof.',
+  emotionalTerritory: ['Quiet Confidence', 'Self-Care Sanity', 'Melanin Radiance'],
+  verbalIdentity: {
+    toneKeywords: ['Editorial', 'Calm Authority', 'Sensory', 'Scientific'],
+    voiceStyle: 'Restrained sophistication. Conversational yet deeply knowledgeable.',
+    samplePhrases: [
+      'Melanin thrives when barrier balance comes first.',
+      'No filler. Just active botanical potency.',
+      'Your skin doesn’t need 10 steps. It needs the right 3.'
+    ],
+    prohibitedJargon: ['Elevate your potential', 'Miracle solution', 'Unlock your beauty', 'Omo guys']
+  },
+  visualPersonality: {
+    aestheticMode: 'Minimalist Botanical Editorial',
+    overallMood: 'Tactile, sun-dappled, organic luxury without ostentation',
+    keyMotifs: ['Matte clay containers', 'Dew drop micro-texture', 'Warm sunlight flares']
+  },
+  colourSystem: {
+    observedPalette: ['Earthy Clay (#8C5A47)', 'Sage (#6B8E23)', 'Pure Warm Milk (#FAF9F6)'],
+    recommendedPalette: ['#8C5A47', '#D4A373', '#FAEDCD', '#283618'],
+    accentColour: '#D4A373',
+    contrastHierarchy: 'Deep earthy contrast against crisp warm whitespace',
+    rationale: 'Rooted in West African botanical clay textures and natural sunlit skin tones.'
+  },
+  typographyDirection: 'Editorial Serif for display headers paired with clean geometric sans for ingredient breakdowns.',
+  photographyDirection: 'Macro product textures on raw stone or linen, soft morning directional sunlight, unretouched real melanin skin texture.',
+  compositionDirection: 'Asymmetric whitespace, 60/40 visual weight balance favoring negative space.',
+  graphicLanguage: 'Fine hairline borders, numbered formula labels, clean architectural grid lines.',
+  textureLanguage: 'Micro-droplets, unpolished ceramic, raw cotton linen.',
+  culturalSignals: ['Lagos humidity resistance', 'Harmattan skin protection', 'Daily Lagos commuter ritual'],
+  creativeOpportunities: ['Behind-the-formula ingredient breakdowns', 'Harmattan skin shield campaign', 'Melanin barrier education'],
+  creativeConstraints: ['Never use generic pink glitter or excessive glowing filters', 'Never use AI smiling stock faces'],
+  thingsToAvoid: ['purple gradients', 'glowing neon borders', 'generic luxury marble', 'fake doctor stock photos'],
+  competitorConventionsToAvoid: ['Before/after lightening claims', 'Over-packaged plastic bottles', 'Excessive golden ribbon graphics']
+};
+
+export function getInitialSeedBrandData() {
+  const demo = DEMO_BRANDS[0];
+  const brandDna = DEFAULT_AURA_DNA;
+  const pricingTiers = generatePsychologicalPricing(demo.name, demo.industry);
+  const calendar = generate20DayCalendar(demo.name, brandDna);
+
+  return {
+    brand: demo,
+    brandDna,
+    pricingTiers,
+    calendar,
+  };
+}
+
 export async function getSeedBrandData(brandId: string) {
   const demo = DEMO_BRANDS.find((b) => b.id === brandId) || DEMO_BRANDS[0];
+  if (brandId === 'demo-aura-skincare') {
+    return getInitialSeedBrandData();
+  }
   const brandDna = await generateBrandDNA({
     brandName: demo.name,
     industry: demo.industry,
