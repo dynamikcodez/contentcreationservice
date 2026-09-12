@@ -79,6 +79,12 @@ export interface AppState {
     rejectedStyles: string[];
   };
 
+  // Navigation View State
+  currentView: 'landing' | 'app';
+  setCurrentView: (view: 'landing' | 'app') => void;
+  feedbackToast: string | null;
+  setFeedbackToast: (toast: string | null) => void;
+
   // Actions
   selectBrand: (brandId: string) => Promise<void>;
   createBrandFromBrief: (brief: any) => Promise<void>;
@@ -109,6 +115,11 @@ export const useAppStore = create<AppState>()(
   byoApiKey: '',
   validationMode: true,
 
+  currentView: 'landing',
+  setCurrentView: (view: 'landing' | 'app') => set({ currentView: view }),
+  feedbackToast: null,
+  setFeedbackToast: (toast: string | null) => set({ feedbackToast: toast }),
+
   activeBrandId: DEMO_BRANDS[0].id,
   brands: DEMO_BRANDS.map((b) => ({
     id: b.id,
@@ -134,51 +145,65 @@ export const useAppStore = create<AppState>()(
 
   selectBrand: async (brandId: string) => {
     const data = await getSeedBrandData(brandId);
+    const demo = data.brand;
+    const provider = new GeminiImageProvider(get().byoApiKey);
+
+    // Build the 20-day posts immediately so they are available without waiting
+    const basePosts: PostItem[] = data.calendar.map((item) => {
+      const concept = generateCreativeConcept({
+        brandDna: data.brandDna,
+        postType: item.postType,
+        pillar: item.pillar,
+        strategicObjective: item.strategicObjective,
+        hook: item.hook,
+        caption: item.caption,
+      });
+
+      return {
+        id: `post-${brandId}-${item.dayNumber}`,
+        ...item,
+        visualStatus: 'NOT_GENERATED' as const,
+        creativeConcept: concept,
+      };
+    });
+
+    // Immediately commit brand DNA, pricing tiers, and all 20 posts into store
     set({
       activeBrandId: brandId,
       activeBrandDna: data.brandDna,
       pricingTiers: data.pricingTiers,
-      posts: data.calendar.map((item, idx) => ({
-        id: `post-${brandId}-${item.dayNumber}`,
-        ...item,
-        visualStatus: idx < 3 ? 'READY' : 'NOT_GENERATED',
-        imageUrl: idx < 3 ? undefined : undefined,
-      })),
+      posts: basePosts,
+      feedbackToast: `Loaded ${demo.name} 20-Day Campaign!`,
     });
 
-    // Automatically trigger visual generation for post 1 & 2 for realistic experience
-    const provider = new GeminiImageProvider(get().byoApiKey);
-    const post1 = get().posts[0];
-    if (post1 && data.brandDna && !post1.imageUrl) {
-      const concept = generateCreativeConcept({
-        brandDna: data.brandDna,
-        postType: post1.postType,
-        pillar: post1.pillar,
-        strategicObjective: post1.strategicObjective,
-        hook: post1.hook,
-        caption: post1.caption,
-      });
+    // Now progressively generate visual flyers for the first 3 posts
+    try {
+      const updatedPosts = [...basePosts];
+      for (let idx = 0; idx < Math.min(3, updatedPosts.length); idx++) {
+        const item = updatedPosts[idx];
+        const res = await provider.generateImage({
+          brandDna: data.brandDna,
+          creativeConcept: item.creativeConcept!,
+          brandName: demo.name,
+          hook: item.hook,
+          cta: item.cta,
+          pillar: item.pillar,
+          dayNumber: item.dayNumber,
+        });
 
-      const res = await provider.generateImage({
-        brandDna: data.brandDna,
-        creativeConcept: concept,
-      });
-
-      if (res.success) {
-        set((state) => ({
-          posts: state.posts.map((p, index) =>
-            index === 0
-              ? {
-                  ...p,
-                  visualStatus: 'READY',
-                  imageUrl: res.imageUrl,
-                  creativeConcept: concept,
-                  criticScore: res.criticScore,
-                }
-              : p
-          ),
-        }));
+        if (res.success && res.imageUrl) {
+          updatedPosts[idx] = {
+            ...item,
+            visualStatus: 'READY',
+            imageUrl: res.imageUrl,
+            criticScore: res.criticScore,
+          };
+          // Update store progressively as each flyer completes
+          set({ posts: [...updatedPosts] });
+        }
       }
+    } catch (flyerErr) {
+      console.warn('Progressive flyer generation warning:', flyerErr);
     }
   },
 
@@ -210,6 +235,7 @@ export const useAppStore = create<AppState>()(
         ...item,
         visualStatus: 'NOT_GENERATED',
       })),
+      feedbackToast: `Created brand ${brief.brandName}!`,
     }));
 
     // Trigger visual generation for Day 1 post automatically
@@ -234,13 +260,24 @@ export const useAppStore = create<AppState>()(
           caption: `[Brand Calibrated] ${p.caption} Re-anchored to solve customer friction with higher authority.`,
         };
       }),
+      feedbackToast: 'Refined post copy with higher authority!',
     }));
   },
 
   generateVisualForPost: async (postId: string) => {
-    const { posts, activeBrandDna, byoApiKey, usage } = get();
+    const { posts, activeBrandDna, activeBrandId, brands, byoApiKey, usage } = get();
+    let brandDna = activeBrandDna;
+    const brand = brands.find((b) => b.id === activeBrandId) || brands[0];
+
+    // Self-healing: if activeBrandDna is missing, fetch it immediately!
+    if (!brandDna) {
+      const data = await getSeedBrandData(activeBrandId);
+      brandDna = data.brandDna;
+      set({ activeBrandDna: brandDna });
+    }
+
     const post = posts.find((p) => p.id === postId);
-    if (!post || !activeBrandDna) return;
+    if (!post || !brandDna) return;
 
     // Check usage limits
     if (usage.imageGenerations >= usage.maxImageGenerations && !byoApiKey) {
@@ -254,7 +291,7 @@ export const useAppStore = create<AppState>()(
 
     const provider = new GeminiImageProvider(byoApiKey);
     const concept = post.creativeConcept || generateCreativeConcept({
-      brandDna: activeBrandDna,
+      brandDna,
       postType: post.postType,
       pillar: post.pillar,
       strategicObjective: post.strategicObjective,
@@ -263,14 +300,20 @@ export const useAppStore = create<AppState>()(
     });
 
     const res = await provider.generateImage({
-      brandDna: activeBrandDna,
+      brandDna,
       creativeConcept: concept,
       userApiKey: byoApiKey,
+      brandName: brand?.name,
+      hook: post.hook,
+      cta: post.cta,
+      pillar: post.pillar,
+      dayNumber: post.dayNumber,
     });
 
     if (res.success) {
       set((state) => ({
         usage: { ...state.usage, imageGenerations: state.usage.imageGenerations + 1 },
+        feedbackToast: `Day ${post.dayNumber} standard flyer generated!`,
         posts: state.posts.map((p) =>
           p.id === postId
             ? {
@@ -318,6 +361,7 @@ export const useAppStore = create<AppState>()(
 
     if (res.success) {
       set((state) => ({
+        feedbackToast: `Day ${post.dayNumber} visual refined!`,
         posts: state.posts.map((p) =>
           p.id === postId
             ? {
@@ -351,6 +395,7 @@ export const useAppStore = create<AppState>()(
 
     set((state) => ({
       posts: [newPostItem, ...state.posts],
+      feedbackToast: `Generated single spotlight post for ${pillar}!`,
     }));
 
     // Trigger visual generation
@@ -373,6 +418,7 @@ export const useAppStore = create<AppState>()(
     set((state) => ({
       designerRequests: [newReq, ...state.designerRequests],
       usage: { ...state.usage, designerRequestsUsed: state.usage.designerRequestsUsed + 1 },
+      feedbackToast: 'Request submitted to Lead Designer!',
     }));
   },
 
@@ -381,11 +427,12 @@ export const useAppStore = create<AppState>()(
     set((state) => ({
       plan,
       usage: { ...state.usage, maxImageGenerations: maxGen },
+      feedbackToast: `Switched to ${plan === 'TRY_IT' ? 'Try It (Free)' : plan === 'MONTHLY' ? 'Creator Monthly Plan (₦5,000/mo)' : 'Retainer Plan (₦15,000/mo)'}`,
     }));
   },
 
   setByoApiKey: (key: string) => {
-    set({ byoApiKey: key });
+    set({ byoApiKey: key, feedbackToast: 'Custom AI API Key saved!' });
   },
 
   recordCreativeDecision: (type: 'ACCEPT' | 'REJECT', conceptSummary: string) => {
@@ -396,10 +443,48 @@ export const useAppStore = create<AppState>()(
         rejectedConcepts: type === 'REJECT' ? [...state.creativeMemory.rejectedConcepts, conceptSummary] : state.creativeMemory.rejectedConcepts,
       },
     }));
-    },
-  }),
+  },
+}),
   {
     name: 'ccs-ultra-storage',
-    storage: createJSONStorage(() => localStorage),
+    storage: createJSONStorage(() => {
+      if (typeof window === 'undefined') {
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }
+      try {
+        const testKey = '__ccs_test__';
+        window.localStorage.setItem(testKey, '1');
+        window.localStorage.removeItem(testKey);
+        return window.localStorage;
+      } catch {
+        const memoryStore = new Map<string, string>();
+        return {
+          getItem: (key: string) => memoryStore.get(key) ?? null,
+          setItem: (key: string, val: string) => { memoryStore.set(key, val); },
+          removeItem: (key: string) => { memoryStore.delete(key); },
+        };
+      }
+    }),
+    partialize: (state) => ({
+      userId: state.userId,
+      userName: state.userName,
+      userEmail: state.userEmail,
+      plan: state.plan,
+      usage: state.usage,
+      byoApiKey: state.byoApiKey,
+      validationMode: state.validationMode,
+      activeBrandId: state.activeBrandId,
+      brands: state.brands,
+      activeBrandDna: state.activeBrandDna,
+      pricingTiers: state.pricingTiers,
+      posts: state.posts,
+      designerRequests: state.designerRequests,
+      creativeMemory: state.creativeMemory,
+      // Note: currentView is excluded from persist so navigation is always responsive and fresh
+    }),
   }
 ));

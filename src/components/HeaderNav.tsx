@@ -2,14 +2,19 @@
 
 import React, { useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
-import { Sparkles, Key, ShieldCheck, ChevronDown, Check, Zap } from 'lucide-react';
+import { Sparkles, Key, ShieldCheck, ChevronDown, Check, Zap, Home } from 'lucide-react';
 
 interface HeaderNavProps {
   onOpenOperator: () => void;
   onOpenOnboarding: () => void;
+  onBackToLanding?: () => void;
 }
 
-export const HeaderNav: React.FC<HeaderNavProps> = ({ onOpenOperator, onOpenOnboarding }) => {
+export const HeaderNav: React.FC<HeaderNavProps> = ({
+  onOpenOperator,
+  onOpenOnboarding,
+  onBackToLanding,
+}) => {
   const { activeBrandId, brands, selectBrand, plan, setPlan, byoApiKey } = useAppStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -108,6 +113,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ onOpenOperator, onOpenOnbo
             <ShieldCheck className="w-4 h-4 text-indigo-400" />
             <span className="hidden sm:inline">Operator</span>
           </button>
+
+          {/* Return to Landing Page Trigger */}
+          {onBackToLanding && (
+            <button
+              onClick={onBackToLanding}
+              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-300 transition"
+              title="Return to Landing Page"
+            >
+              <Home className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">Landing</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

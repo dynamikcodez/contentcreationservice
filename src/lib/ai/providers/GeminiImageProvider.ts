@@ -190,83 +190,311 @@ Negative Constraints: DO NOT include generic AI slop, purple gradients, glowing 
     const palette = brandDna.colourSystem?.recommendedPalette || ['#1E1B4B', '#F59E0B', '#F3F4F6'];
     const primaryColor = palette[0] || '#1E1B4B';
     const secondaryColor = palette[1] || '#F59E0B';
-    const accentColor = palette[2] || '#475569';
-    const aestheticMode = brandDna.visualPersonality?.aestheticMode || 'Editorial Photography';
-    const coreIdea = creativeConcept.coreIdea || 'Strategic Brand Concept';
-    const subject = creativeConcept.subject || 'Featured Product / Strategic Visual';
-    const headline = creativeConcept.strategicObjective || 'Content Strategy Execution';
+    const accentColor = palette[2] || '#E2E8F0';
+
+    const brandName = (input.brandName || 'BRAND IDENTITY').toUpperCase();
+    const dayNumber = input.dayNumber ? (input.dayNumber < 10 ? `0${input.dayNumber}` : `${input.dayNumber}`) : '01';
+    const pillar = (input.pillar || creativeConcept.strategicObjective || 'STRATEGIC VALUE').toUpperCase();
+    const rawHook = input.hook || creativeConcept.coreIdea || 'Transform Your Business with Strategic Clarity';
+    const ctaText = input.cta || 'Tap the link or DM to order today';
+
+    const escapeXml = (unsafe: string) =>
+      (unsafe || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+    // Word wrap headline for flyer display (26 characters per line, up to 3 lines)
+    const words = rawHook.split(' ');
+    const headlineLines: string[] = [];
+    let curLine = '';
+    for (const w of words) {
+      if ((curLine + ' ' + w).trim().length <= 26) {
+        curLine = (curLine + ' ' + w).trim();
+      } else {
+        if (curLine) headlineLines.push(curLine);
+        curLine = w;
+        if (headlineLines.length >= 3) break;
+      }
+    }
+    if (curLine && headlineLines.length < 3) headlineLines.push(curLine);
+
+    // Detect Industry Theme
+    const positioningLower = (brandDna.positioning || '').toLowerCase() + ' ' + brandName.toLowerCase();
+    const isSkincare = positioningLower.includes('skin') || positioningLower.includes('botanical') || positioningLower.includes('aura');
+    const isFood = positioningLower.includes('food') || positioningLower.includes('snack') || positioningLower.includes('bite') || positioningLower.includes('crunch');
+    const isLegal = positioningLower.includes('law') || positioningLower.includes('legal') || positioningLower.includes('audit') || positioningLower.includes('contract');
+
+    let badge1 = '100% Tested & Verified';
+    let badge2 = 'Fast Lagos Delivery';
+    let badge3 = 'Zero Compromise';
+    let themeIcon = '';
+    let categoryBadge = 'BRAND CAMPAIGN';
+
+    if (isSkincare) {
+      categoryBadge = 'MELANIN SKINCARE & WELLNESS';
+      badge1 = 'Cold-Pressed Botanicals';
+      badge2 = 'Barrier Repair Ritual';
+      badge3 = 'Zero Synthetic Fragrance';
+      themeIcon = `
+        <!-- Botanical Leaves & Droplet Centerpiece -->
+        <g transform="translate(540, 680)">
+          <!-- Ambient Glow Circle -->
+          <circle cx="0" cy="0" r="160" fill="${secondaryColor}" fill-opacity="0.12" />
+          <circle cx="0" cy="0" r="130" fill="none" stroke="${secondaryColor}" stroke-width="2" stroke-dasharray="6 6" stroke-opacity="0.4" />
+          
+          <!-- Botanical Leaf 1 -->
+          <path d="M 0,-100 C 60,-60 80,20 0,80 C -80,20 -60,-60 0,-100 Z" fill="${secondaryColor}" fill-opacity="0.25" stroke="${secondaryColor}" stroke-width="2" />
+          <!-- Botanical Leaf 2 -->
+          <path d="M 0,-80 C 40,-40 60,10 0,60 C -60,10 -40,-40 0,-80 Z" fill="${accentColor}" fill-opacity="0.35" transform="rotate(35)" />
+          <!-- Botanical Leaf 3 -->
+          <path d="M 0,-80 C 40,-40 60,10 0,60 C -60,10 -40,-40 0,-80 Z" fill="${accentColor}" fill-opacity="0.35" transform="rotate(-35)" />
+          
+          <!-- Golden Serum Droplet -->
+          <circle cx="0" cy="95" r="14" fill="${secondaryColor}" />
+          <path d="M 0,68 C 12,85 14,95 0,110 C -14,95 -12,85 0,68 Z" fill="${secondaryColor}" />
+
+          <!-- Circular Seal Text Badge -->
+          <rect x="-140" y="145" width="280" height="34" rx="17" fill="#0B0F19" stroke="${secondaryColor}" stroke-width="1.5" />
+          <text x="0" y="167" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="${secondaryColor}">
+            100% PURE BOTANICAL POTENCY
+          </text>
+        </g>
+      `;
+    } else if (isFood) {
+      categoryBadge = 'CAMPUS SNACK & STREET FOOD';
+      badge1 = 'Double-Spiced Crunch';
+      badge2 = 'Delivered Under 20 Mins';
+      badge3 = 'Pure Lagos Hustle Fuel';
+      themeIcon = `
+        <!-- Dynamic Flame & Crunch Burst Centerpiece -->
+        <g transform="translate(540, 680)">
+          <!-- Burst Rays -->
+          <g stroke="${secondaryColor}" stroke-width="2" stroke-opacity="0.2" stroke-dasharray="8 8">
+            <line x1="-160" y1="0" x2="160" y2="0" />
+            <line x1="0" y1="-160" x2="0" y2="160" />
+            <line x1="-110" y1="-110" x2="110" y2="110" />
+            <line x1="-110" y1="110" x2="110" y2="-110" />
+          </g>
+
+          <circle cx="0" cy="0" r="140" fill="${secondaryColor}" fill-opacity="0.15" />
+          <circle cx="0" cy="0" r="110" fill="none" stroke="${secondaryColor}" stroke-width="3" />
+
+          <!-- Dynamic Snack Flame Motif -->
+          <path d="M 0,-80 C 40,-40 70,0 45,50 C 30,80 -30,80 -45,50 C -70,0 -40,-40 0,-80 Z" fill="${secondaryColor}" fill-opacity="0.3" />
+          <path d="M 0,-50 C 25,-25 45,0 30,35 C 20,55 -20,55 -30,35 C -45,0 -25,-25 0,-50 Z" fill="#DC2626" />
+          <circle cx="0" cy="15" r="18" fill="${secondaryColor}" />
+
+          <!-- Stamp Badge -->
+          <rect x="-150" y="145" width="300" height="34" rx="17" fill="#0B0F19" stroke="${secondaryColor}" stroke-width="1.5" />
+          <text x="0" y="167" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="900" letter-spacing="2" fill="${secondaryColor}">
+            MAXIMUM CRUNCH • ZERO DELAY
+          </text>
+        </g>
+      `;
+    } else if (isLegal) {
+      categoryBadge = 'CORPORATE LAW & COMPLIANCE';
+      badge1 = 'CAC Registered Audit';
+      badge2 = 'Founder IP Defense';
+      badge3 = '48-Hour Turnaround';
+      themeIcon = `
+        <!-- Law Scale / Shield Emblem Centerpiece -->
+        <g transform="translate(540, 680)">
+          <circle cx="0" cy="0" r="150" fill="${secondaryColor}" fill-opacity="0.1" />
+          <polygon points="0,-100 80,-50 80,40 0,100 -80,40 -80,-50" fill="none" stroke="${secondaryColor}" stroke-width="2.5" />
+          <polygon points="0,-85 65,-40 65,30 0,80 -65,30 -65,-40" fill="${primaryColor}" fill-opacity="0.5" stroke="${secondaryColor}" stroke-width="1" stroke-dasharray="4 4" />
+
+          <!-- Justice Scale Crossbar -->
+          <line x1="-50" y1="-20" x2="50" y2="-20" stroke="${secondaryColor}" stroke-width="3" />
+          <line x1="0" y1="-50" x2="0" y2="40" stroke="${secondaryColor}" stroke-width="3" />
+          <circle cx="0" cy="-50" r="8" fill="${secondaryColor}" />
+          <!-- Scale Pans -->
+          <polygon points="-50,-20 -65,15 -35,15" fill="${secondaryColor}" fill-opacity="0.4" />
+          <polygon points="50,-20 35,15 65,15" fill="${secondaryColor}" fill-opacity="0.4" />
+
+          <!-- Verification Badge -->
+          <rect x="-150" y="145" width="300" height="34" rx="17" fill="#0B0F19" stroke="${secondaryColor}" stroke-width="1.5" />
+          <text x="0" y="167" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="${secondaryColor}">
+            ZERO LEGAL JARGON • TOTAL SAFETY
+          </text>
+        </g>
+      `;
+    } else {
+      categoryBadge = 'CONTENT STRATEGY & CREATOR';
+      themeIcon = `
+        <!-- Creator Starburst Centerpiece -->
+        <g transform="translate(540, 680)">
+          <circle cx="0" cy="0" r="140" fill="${secondaryColor}" fill-opacity="0.12" />
+          <circle cx="0" cy="0" r="100" fill="none" stroke="${secondaryColor}" stroke-width="2" stroke-dasharray="4 4" />
+          <polygon points="0,-70 20,-20 70,0 20,20 0,70 -20,20 -70,0 -20,-20" fill="${secondaryColor}" fill-opacity="0.3" stroke="${secondaryColor}" stroke-width="2" />
+          <circle cx="0" cy="0" r="16" fill="${secondaryColor}" />
+          
+          <rect x="-150" y="145" width="300" height="34" rx="17" fill="#0B0F19" stroke="${secondaryColor}" stroke-width="1.5" />
+          <text x="0" y="167" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="${secondaryColor}">
+            AUTHENTIC VOICE • NARRATIVE ARC
+          </text>
+        </g>
+      `;
+    }
 
     const svgString = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="100%" height="100%">
   <defs>
+    <!-- Background Gradient -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${primaryColor}" />
-      <stop offset="100%" stop-color="#0F172A" />
+      <stop offset="40%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#050811" />
     </linearGradient>
-    <radialGradient id="spotlight" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="${secondaryColor}" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="${primaryColor}" stop-opacity="0" />
+
+    <!-- Radial Ambient Spotlight -->
+    <radialGradient id="ambientSpot" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="${secondaryColor}" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="${primaryColor}" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.4" />
+
+    <!-- Frosted Card Gradient -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="posterShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.6" />
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="800" height="1000" fill="url(#bgGrad)" />
-  <rect width="800" height="1000" fill="url(#spotlight)" />
+  <!-- Base Flyer Canvas -->
+  <rect width="1080" height="1350" fill="url(#bgGrad)" />
+  <rect width="1080" height="1350" fill="url(#ambientSpot)" />
 
-  <!-- Grid / Editorial Frame -->
-  <rect x="40" y="40" width="720" height="920" fill="none" stroke="${secondaryColor}" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="4 4" />
+  <!-- Outer Architectural Framing & Corner Ticks -->
+  <rect x="40" y="40" width="1000" height="1270" rx="24" fill="none" stroke="${secondaryColor}" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="6 6" />
+  <rect x="52" y="52" width="976" height="1246" rx="20" fill="none" stroke="#334155" stroke-width="1" stroke-opacity="0.5" />
 
-  <!-- Aesthetic Mode Label -->
-  <text x="60" y="85" font-family="system-ui, sans-serif" font-size="14" font-weight="700" letter-spacing="3" fill="${secondaryColor}">
-    CCS ULTRA // ${aestheticMode.toUpperCase()}
-  </text>
+  <!-- Corner Graphic Ticks -->
+  <path d="M 60,80 L 80,60 M 1020,80 L 1000,60 M 60,1270 L 80,1290 M 1020,1270 L 1000,1290" stroke="${secondaryColor}" stroke-width="2" />
 
-  <!-- Editorial Subject Concept Card -->
-  <g filter="url(#shadow)">
-    <rect x="70" y="130" width="660" height="540" rx="16" fill="${primaryColor}" fill-opacity="0.6" stroke="${secondaryColor}" stroke-opacity="0.4" stroke-width="1" />
-
-    <!-- Visual Subject Graphic Composition -->
-    <circle cx="400" cy="380" r="180" fill="${secondaryColor}" fill-opacity="0.15" />
-    <circle cx="400" cy="380" r="120" fill="none" stroke="${secondaryColor}" stroke-width="2" stroke-dasharray="8 8" />
-
-    <!-- Abstract Focal Element depicting subject -->
-    <rect x="300" y="280" width="200" height="200" rx="24" fill="${secondaryColor}" fill-opacity="0.2" stroke="${secondaryColor}" stroke-width="2" transform="rotate(45 400 380)" />
-
-    <text x="400" y="375" text-anchor="middle" font-family="serif" font-size="22" font-weight="600" fill="#FFFFFF">
-      ${subject.slice(0, 32)}
+  <!-- HEADER MASTHEAD BAR -->
+  <g transform="translate(80, 85)">
+    <!-- Brand Initial Avatar Badge -->
+    <rect x="0" y="0" width="48" height="48" rx="14" fill="${secondaryColor}" />
+    <text x="24" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="900" fill="#0B0F19">
+      ${escapeXml(brandName.charAt(0))}
     </text>
-    <text x="400" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="${secondaryColor}" letter-spacing="1">
-      ${creativeConcept.composition || 'Calibrated Editorial Composition'}
+
+    <!-- Brand Name & Category -->
+    <text x="64" y="24" font-family="system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2" fill="#FFFFFF">
+      ${escapeXml(brandName)}
+    </text>
+    <text x="64" y="44" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="${secondaryColor}">
+      ${escapeXml(categoryBadge)}
+    </text>
+
+    <!-- Right-aligned Day Pill -->
+    <rect x="740" y="6" width="180" height="36" rx="18" fill="#0B0F19" stroke="${secondaryColor}" stroke-width="1.5" />
+    <text x="830" y="29" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="1.5" fill="${secondaryColor}">
+      DAY ${dayNumber} // 20-DAY
     </text>
   </g>
 
-  <!-- Art Direction Details Block -->
-  <rect x="70" y="700" width="660" height="220" rx="12" fill="#0F172A" fill-opacity="0.85" stroke="#334155" stroke-width="1" />
+  <!-- CONTENT PILLAR TAG -->
+  <g transform="translate(80, 165)">
+    <rect x="0" y="0" width="auto" height="28" rx="8" fill="${secondaryColor}" fill-opacity="0.15" stroke="${secondaryColor}" stroke-opacity="0.4" stroke-width="1" />
+    <text x="14" y="19" font-family="system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing="2" fill="${secondaryColor}">
+      PILLAR: ${escapeXml(pillar)}
+    </text>
+  </g>
 
-  <text x="100" y="740" font-family="system-ui, sans-serif" font-size="12" font-weight="700" letter-spacing="2" fill="${secondaryColor}">
-    STRATEGIC CORE IDEA
-  </text>
-  <text x="100" y="770" font-family="serif" font-size="20" font-weight="700" fill="#FFFFFF">
-    "${coreIdea.slice(0, 50)}${coreIdea.length > 50 ? '...' : ''}"
-  </text>
+  <!-- HERO HOOK HEADLINE CARD -->
+  <g transform="translate(80, 215)" filter="url(#posterShadow)">
+    <rect x="0" y="0" width="920" height="220" rx="20" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
 
-  <text x="100" y="810" font-family="system-ui, sans-serif" font-size="13" fill="#94A3B8">
-    Lighting: <tspan fill="#F8FAFC">${creativeConcept.lighting || 'Natural studio default'}</tspan>
-  </text>
-  <text x="100" y="835" font-family="system-ui, sans-serif" font-size="13" fill="#94A3B8">
-    Palette: <tspan fill="${secondaryColor}">${palette.join(' • ')}</tspan>
-  </text>
-  <text x="100" y="860" font-family="system-ui, sans-serif" font-size="13" fill="#94A3B8">
-    Cultural Context: <tspan fill="#F8FAFC">${creativeConcept.culturalContext || 'Nigerian Commerce Context'}</tspan>
-  </text>
+    <!-- Accent Header Tag -->
+    <text x="40" y="45" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="3" fill="${secondaryColor}">
+      STRATEGIC HOOK
+    </text>
 
-  <!-- Watermark -->
-  <text x="710" y="900" text-anchor="end" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#64748B">
-    BRAND CALIBRATED • NO SLOP
-  </text>
+    <!-- Bold Headline Text Lines -->
+    ${headlineLines
+      .map(
+        (line, idx) => `
+      <text x="40" y="${95 + idx * 46}" font-family="system-ui, sans-serif" font-size="34" font-weight="900" fill="${idx === 0 ? '#FFFFFF' : accentColor}" letter-spacing="-0.5">
+        "${escapeXml(line)}"
+      </text>`
+      )
+      .join('')}
+  </g>
+
+  <!-- CENTERPIECE THEMATIC ARTWORK (Vector Visual) -->
+  ${themeIcon}
+
+  <!-- KEY STRATEGIC VALUE BADGES -->
+  <g transform="translate(80, 930)">
+    <!-- Badge 1 -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="290" height="60" rx="14" fill="#0F172A" stroke="#334155" stroke-width="1" />
+      <circle cx="30" cy="30" r="12" fill="${secondaryColor}" fill-opacity="0.2" />
+      <text x="30" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="900" fill="${secondaryColor}">✓</text>
+      <text x="54" y="35" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">
+        ${escapeXml(badge1)}
+      </text>
+    </g>
+
+    <!-- Badge 2 -->
+    <g transform="translate(315, 0)">
+      <rect x="0" y="0" width="290" height="60" rx="14" fill="#0F172A" stroke="#334155" stroke-width="1" />
+      <circle cx="30" cy="30" r="12" fill="${secondaryColor}" fill-opacity="0.2" />
+      <text x="30" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="900" fill="${secondaryColor}">✓</text>
+      <text x="54" y="35" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">
+        ${escapeXml(badge2)}
+      </text>
+    </g>
+
+    <!-- Badge 3 -->
+    <g transform="translate(630, 0)">
+      <rect x="0" y="0" width="290" height="60" rx="14" fill="#0F172A" stroke="#334155" stroke-width="1" />
+      <circle cx="30" cy="30" r="12" fill="${secondaryColor}" fill-opacity="0.2" />
+      <text x="30" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="900" fill="${secondaryColor}">✓</text>
+      <text x="54" y="35" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#E2E8F0">
+        ${escapeXml(badge3)}
+      </text>
+    </g>
+  </g>
+
+  <!-- BOTTOM HIGH-CONVERTING CTA BANNER -->
+  <g transform="translate(80, 1030)" filter="url(#posterShadow)">
+    <rect x="0" y="0" width="920" height="130" rx="20" fill="${secondaryColor}" />
+
+    <!-- CTA Label -->
+    <text x="40" y="45" font-family="system-ui, sans-serif" font-size="12" font-weight="900" letter-spacing="3" fill="#0B0F19" fill-opacity="0.7">
+      TAKE ACTION TODAY
+    </text>
+
+    <!-- CTA Headline -->
+    <text x="40" y="88" font-family="system-ui, sans-serif" font-size="24" font-weight="900" fill="#0B0F19">
+      👉 ${escapeXml(ctaText.slice(0, 48))}${ctaText.length > 48 ? '...' : ''}
+    </text>
+
+    <!-- Sub-note -->
+    <text x="880" y="85" text-anchor="end" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#0B0F19" fill-opacity="0.8">
+      FAST DELIVERY • NATIONWIDE
+    </text>
+  </g>
+
+  <!-- FOOTER VERIFICATION & WATERMARK -->
+  <g transform="translate(80, 1220)">
+    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#64748B">
+      CCS ULTRA // PHONE-FIRST CREATIVE INTELLIGENCE • CALIBRATED BRAND DNA
+    </text>
+    <text x="920" y="0" text-anchor="end" font-family="system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing="2" fill="${secondaryColor}">
+      NO GENERIC SLOP • 100% STRATEGY
+    </text>
+  </g>
 </svg>
     `.trim();
 

@@ -16,8 +16,17 @@ import { OperatorConsoleModal } from '@/components/OperatorConsoleModal';
 import { IntakeOnboardingModal } from '@/components/IntakeOnboardingModal';
 
 export default function HomePage() {
-  const { selectBrand, activeBrandId, setPlan } = useAppStore();
+  const {
+    selectBrand,
+    activeBrandId,
+    setPlan,
+    currentView: storeView,
+    setCurrentView: setStoreView,
+    feedbackToast,
+    setFeedbackToast,
+  } = useAppStore();
 
+  // Local React state guarantees immediate synchronous view switching without external storage race conditions
   const [view, setView] = useState<'landing' | 'app'>('landing');
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
 
@@ -28,17 +37,40 @@ export default function HomePage() {
   const [showOperator, setShowOperator] = useState<boolean>(false);
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
-  // Initialize seed brand data on mount only if stored state is empty
+  // Sync store view if updated elsewhere
+  useEffect(() => {
+    if (storeView) {
+      setView(storeView);
+    }
+  }, [storeView]);
+
+  // Initialize seed brand data on mount and self-heal if stored state is missing Brand DNA
   useEffect(() => {
     const currentState = useAppStore.getState();
-    if (!currentState.posts || currentState.posts.length === 0) {
-      selectBrand(activeBrandId);
+    if (!currentState.posts || currentState.posts.length === 0 || !currentState.activeBrandDna) {
+      selectBrand(currentState.activeBrandId || 'demo-aura-skincare');
     }
-  }, []);
+  }, [selectBrand]);
+
+  // Auto-dismiss toast after 3.5s
+  useEffect(() => {
+    if (feedbackToast) {
+      const timer = setTimeout(() => {
+        setFeedbackToast(null);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [feedbackToast, setFeedbackToast]);
 
   const handleStartGameplan = () => {
     setView('app');
+    setStoreView('app');
     setActiveTab('calendar');
+  };
+
+  const handleBackToLanding = () => {
+    setView('landing');
+    setStoreView('landing');
   };
 
   const handleSelectPlan = (plan: 'TRY_IT' | 'MONTHLY' | 'RETAINER') => {
@@ -57,10 +89,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0B0F19] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans pb-20">
       
-      {/* Top Header Navigation with Brand Selector */}
+      {/* Top Header Navigation with Brand Selector & Landing Page Back Button */}
       <HeaderNav
         onOpenOperator={() => setShowOperator(true)}
         onOpenOnboarding={() => setShowOnboarding(true)}
+        onBackToLanding={handleBackToLanding}
       />
 
       {/* Main Tab Views */}
@@ -115,6 +148,14 @@ export default function HomePage() {
         <IntakeOnboardingModal
           onClose={() => setShowOnboarding(false)}
         />
+      )}
+
+      {/* Floating System Toast */}
+      {feedbackToast && (
+        <div className="fixed bottom-20 sm:bottom-6 right-6 z-50 bg-slate-900/95 border border-amber-500/60 text-slate-100 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+          <span>{feedbackToast}</span>
+        </div>
       )}
 
     </div>

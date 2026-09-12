@@ -84,6 +84,11 @@ export interface ImageGenerationInput {
   aspectRatio?: '1:1' | '9:16' | '4:5';
   userApiKey?: string;
   brandAssetUrls?: string[];
+  brandName?: string;
+  hook?: string;
+  cta?: string;
+  pillar?: string;
+  dayNumber?: number;
 }
 
 export interface ImageEditInput {

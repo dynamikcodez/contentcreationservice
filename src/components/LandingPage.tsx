@@ -50,8 +50,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
               For creators & brands
             </span>
             <button
-              onClick={onStartGameplan}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onStartGameplan();
+              }}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition cursor-pointer active:scale-95"
             >
               Launch App →
             </button>
@@ -92,8 +96,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
-              onClick={onStartGameplan}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onStartGameplan();
+              }}
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 cursor-pointer active:scale-95"
             >
               <span>Build My 20-Day Content Engine</span>
               <ArrowRight className="w-4 h-4" />
@@ -256,8 +264,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button onClick={() => { onSelectPlan('TRY_IT'); onStartGameplan(); }}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs transition">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectPlan('TRY_IT');
+                onStartGameplan();
+              }}
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs transition cursor-pointer active:scale-95"
+            >
               Start Free
             </button>
           </div>
@@ -275,8 +290,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button onClick={() => { onSelectPlan('MONTHLY'); onStartGameplan(); }}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-amber-500/20">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectPlan('MONTHLY');
+                onStartGameplan();
+              }}
+              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer active:scale-95"
+            >
               Subscribe Monthly
             </button>
           </div>
@@ -293,8 +315,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button onClick={() => { onSelectPlan('RETAINER'); onStartGameplan(); }}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-indigo-600/20">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectPlan('RETAINER');
+                onStartGameplan();
+              }}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-indigo-600/20 cursor-pointer active:scale-95"
+            >
               Join Retainer
             </button>
           </div>
@@ -309,16 +338,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
             Whether you're a creator with a complex niche, a personal brand going through a pivot, or a business that needs end-to-end brand architecture — talk directly to our team.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button onClick={handleTalkToNeye}
-              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition">
+            <a
+              href="https://wa.me/2349162716205?text=Hello%20Neye%2C%20I%27m%20interested%20in%20the%20CCS%20Ultra%20Retainer.%20I%20need%20a%20bespoke%20brand%20strategy."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition cursor-pointer"
+            >
               <MessageSquare className="w-4 h-4" />
               <span>Talk to Neye — Lead Strategist (+234 916 271 6205)</span>
-            </button>
-            <button onClick={handleTalkToIyiola}
-              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+            </a>
+            <a
+              href="https://wa.me/2347032293819?text=Hello%20Iyiola%2C%20I%20have%20an%20inquiry%20about%20CCS%20Ultra%20onboarding%20and%20plans."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition cursor-pointer"
+            >
               <MessageSquare className="w-4 h-4" />
               <span>Talk to Iyiola — Ops & Support (+234 703 229 3819)</span>
-            </button>
+            </a>
           </div>
         </div>
       </section>
