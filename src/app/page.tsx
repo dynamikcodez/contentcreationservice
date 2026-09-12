@@ -1,42 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAppStore, PostItem } from '@/stores/useAppStore';
-import { HeaderNav } from '@/components/HeaderNav';
-import { BottomTabBar, TabType } from '@/components/BottomTabBar';
-import { GameplanView } from '@/components/GameplanView';
-import { CalendarFeedView } from '@/components/CalendarFeedView';
-import { CreativeStudioView } from '@/components/CreativeStudioView';
-import { SupportSopView } from '@/components/SupportSopView';
+import { useRouter } from 'next/navigation';
+import { useAppStore } from '@/stores/useAppStore';
 import { LandingPage } from '@/components/LandingPage';
-import { PostEditorModal } from '@/components/PostEditorModal';
-import { MagicWandModal } from '@/components/MagicWandModal';
-import { DesignerRequestModal } from '@/components/DesignerRequestModal';
-import { OperatorConsoleModal } from '@/components/OperatorConsoleModal';
-import { IntakeOnboardingModal } from '@/components/IntakeOnboardingModal';
+import { DashboardApp } from '@/components/DashboardApp';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function HomePage() {
+  const router = useRouter();
   const {
     selectBrand,
-    activeBrandId,
     setPlan,
     currentView: storeView,
     setCurrentView: setStoreView,
-    feedbackToast,
-    setFeedbackToast,
   } = useAppStore();
 
-  // Local React state guarantees immediate synchronous view switching without external storage race conditions
   const [view, setView] = useState<'landing' | 'app'>('landing');
-  const [activeTab, setActiveTab] = useState<TabType>('calendar');
-
-  // Modal States
-  const [editingPost, setEditingPost] = useState<PostItem | null>(null);
-  const [wandPost, setWandPost] = useState<PostItem | null>(null);
-  const [designerPost, setDesignerPost] = useState<PostItem | null>(null);
-  const [showOperator, setShowOperator] = useState<boolean>(false);
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
   // Sync store view if updated elsewhere
   useEffect(() => {
@@ -53,25 +33,16 @@ export default function HomePage() {
     }
   }, [selectBrand]);
 
-  // Auto-dismiss toast after 3.5s
-  useEffect(() => {
-    if (feedbackToast) {
-      const timer = setTimeout(() => {
-        setFeedbackToast(null);
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [feedbackToast, setFeedbackToast]);
-
   const handleStartGameplan = () => {
     setView('app');
     setStoreView('app');
-    setActiveTab('calendar');
+    router.push('/app');
   };
 
   const handleBackToLanding = () => {
     setView('landing');
     setStoreView('landing');
+    router.push('/');
   };
 
   const handleSelectPlan = (plan: 'TRY_IT' | 'MONTHLY' | 'RETAINER') => {
@@ -91,78 +62,7 @@ export default function HomePage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#0B0F19] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans pb-20">
-        
-        {/* Top Header Navigation with Brand Selector & Landing Page Back Button */}
-        <HeaderNav
-          onOpenOperator={() => setShowOperator(true)}
-          onOpenOnboarding={() => setShowOnboarding(true)}
-          onBackToLanding={handleBackToLanding}
-        />
-
-        {/* Main Tab Views */}
-        <main className="pt-2">
-          {activeTab === 'gameplan' && <GameplanView />}
-          
-          {activeTab === 'calendar' && (
-            <CalendarFeedView
-              onOpenEditModal={(post) => setEditingPost(post)}
-              onOpenMagicWandModal={(post) => setWandPost(post)}
-              onOpenDesignerModal={(post) => setDesignerPost(post)}
-            />
-          )}
-
-          {activeTab === 'studio' && <CreativeStudioView />}
-
-          {activeTab === 'support' && <SupportSopView />}
-        </main>
-
-        {/* Mobile-First Bottom Navigation Bar */}
-        <BottomTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        {/* Modals & Overlays */}
-        {editingPost && (
-          <PostEditorModal
-            post={editingPost}
-            onClose={() => setEditingPost(null)}
-          />
-        )}
-
-        {wandPost && (
-          <MagicWandModal
-            post={wandPost}
-            onClose={() => setWandPost(null)}
-          />
-        )}
-
-        {designerPost && (
-          <DesignerRequestModal
-            post={designerPost}
-            onClose={() => setDesignerPost(null)}
-          />
-        )}
-
-        {showOperator && (
-          <OperatorConsoleModal
-            onClose={() => setShowOperator(false)}
-          />
-        )}
-
-        {showOnboarding && (
-          <IntakeOnboardingModal
-            onClose={() => setShowOnboarding(false)}
-          />
-        )}
-
-        {/* Floating System Toast */}
-        {feedbackToast && (
-          <div className="fixed bottom-20 sm:bottom-6 right-6 z-50 bg-slate-900/95 border border-amber-500/60 text-slate-100 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-            <span>{feedbackToast}</span>
-          </div>
-        )}
-
-      </div>
+      <DashboardApp onBackToLanding={handleBackToLanding} />
     </ErrorBoundary>
   );
 }

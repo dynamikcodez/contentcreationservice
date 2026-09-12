@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Sparkles, ArrowRight, CheckCircle2, MessageSquare, Compass, Layers, Palette, BookOpen, Instagram, Youtube, Mail } from 'lucide-react';
 
 interface LandingPageProps {
-  onStartGameplan: () => void;
-  onSelectPlan: (plan: 'TRY_IT' | 'MONTHLY' | 'RETAINER') => void;
+  onStartGameplan?: () => void;
+  onSelectPlan?: (plan: 'TRY_IT' | 'MONTHLY' | 'RETAINER') => void;
 }
 
 const AUDIENCES = [
@@ -49,16 +50,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               For creators & brands
             </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onStartGameplan();
-              }}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition cursor-pointer active:scale-95"
+            <Link
+              href="/app"
+              onClick={() => onStartGameplan?.()}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-500/20 transition cursor-pointer active:scale-95 inline-flex items-center"
             >
               Launch App →
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -95,17 +93,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onStartGameplan();
-              }}
+            <Link
+              href="/app"
+              onClick={() => onStartGameplan?.()}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 cursor-pointer active:scale-95"
             >
               <span>Build My 20-Day Content Engine</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
             <span className="text-xs text-slate-500">Free to start. No card required.</span>
           </div>
         </div>
@@ -264,17 +259,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelectPlan('TRY_IT');
-                onStartGameplan();
+            <Link
+              href="/app"
+              onClick={() => {
+                onSelectPlan?.('TRY_IT');
+                onStartGameplan?.();
               }}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs transition cursor-pointer active:scale-95"
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs transition cursor-pointer active:scale-95 text-center inline-block"
             >
               Start Free
-            </button>
+            </Link>
           </div>
 
           {/* MONTHLY */}
@@ -290,17 +284,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelectPlan('MONTHLY');
-                onStartGameplan();
+            <Link
+              href="/app"
+              onClick={() => {
+                onSelectPlan?.('MONTHLY');
+                onStartGameplan?.();
               }}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer active:scale-95"
+              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-amber-500/20 cursor-pointer active:scale-95 text-center inline-block"
             >
               Subscribe Monthly
-            </button>
+            </Link>
           </div>
 
           {/* RETAINER */}
@@ -315,17 +308,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGameplan, onSel
                 ))}
               </ul>
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelectPlan('RETAINER');
-                onStartGameplan();
+            <Link
+              href="/app"
+              onClick={() => {
+                onSelectPlan?.('RETAINER');
+                onStartGameplan?.();
               }}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-indigo-600/20 cursor-pointer active:scale-95"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-indigo-600/20 cursor-pointer active:scale-95 text-center inline-block"
             >
               Join Retainer
-            </button>
+            </Link>
           </div>
         </div>
       </section>

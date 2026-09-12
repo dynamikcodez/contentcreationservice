@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useAppStore } from '@/stores/useAppStore';
 import { Sparkles, Key, ShieldCheck, ChevronDown, Check, Zap, Home } from 'lucide-react';
 import { DEMO_BRANDS } from '@/lib/seeds';
@@ -117,16 +118,15 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           </button>
 
           {/* Return to Landing Page Trigger */}
-          {onBackToLanding && (
-            <button
-              onClick={onBackToLanding}
-              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-300 transition"
-              title="Return to Landing Page"
-            >
-              <Home className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Landing</span>
-            </button>
-          )}
+          <Link
+            href="/"
+            onClick={onBackToLanding}
+            className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-300 transition"
+            title="Return to Landing Page"
+          >
+            <Home className="w-4 h-4 text-amber-400" />
+            <span className="hidden sm:inline">Landing</span>
+          </Link>
         </div>
       </div>
     </header>

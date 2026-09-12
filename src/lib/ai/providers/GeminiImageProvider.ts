@@ -498,6 +498,6 @@ Negative Constraints: DO NOT include generic AI slop, purple gradients, glowing 
 </svg>
     `.trim();
 
-    return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
   }
 }
