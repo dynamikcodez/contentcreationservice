@@ -11,7 +11,10 @@ export class GeminiImageProvider implements ImageGenerationProvider {
   private apiKey: string | undefined;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GEMINI_API_KEY;
+    this.apiKey =
+      apiKey ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+      process.env.GEMINI_API_KEY;
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -24,57 +27,97 @@ export class GeminiImageProvider implements ImageGenerationProvider {
     };
   }
 
-  async generateImage(input: ImageGenerationInput): Promise<ImageGenerationResult> {
+  async generateImage(input: ImageGenerationInput & { forceStandardFlyer?: boolean }): Promise<ImageGenerationResult> {
     const startTime = Date.now();
     const prompt = this.buildArtDirectedPrompt(input);
 
+    // If standard flyer explicitly requested (e.g. on fallback/retry)
+    if (input.forceStandardFlyer) {
+      const svgUrl = this.generateBrandCalibratedSvg(input);
+      const criticScore = this.evaluateCreativeQuality(input, prompt);
+      return {
+        success: true,
+        imageUrl: svgUrl,
+        promptUsed: prompt,
+        provider: 'CCS Creative Studio Engine (Standard Flyer)',
+        criticScore,
+        cost: 0.0,
+        durationMs: Date.now() - startTime,
+      };
+    }
+
     try {
-      // If user supplied key or server key exists, we can call Gemini API
+      // If user supplied key or server key exists, attempt Gemini API
       const effectiveKey = input.userApiKey || this.apiKey;
 
       if (effectiveKey && effectiveKey !== 'MOCK_KEY') {
-        // Attempt real Gemini text-to-image API call via REST / Gemini SDK
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${effectiveKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              instances: [{ prompt }],
-              parameters: {
-                sampleCount: 1,
-                aspectRatio: input.aspectRatio || '1:1',
-              },
-            }),
-          }
-        );
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-        if (response.ok) {
-          const data = await response.json();
-          const base64Img = data?.predictions?.[0]?.bytesBase64Encoded;
-          if (base64Img) {
-            const imageUrl = `data:image/png;base64,${base64Img}`;
-            const criticScore = this.evaluateCreativeQuality(input, prompt);
+        try {
+          // Attempt Gemini generation via REST
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${effectiveKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: `Generate photorealistic visual: ${prompt}` }] }],
+              }),
+            }
+          );
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            const part = data?.candidates?.[0]?.content?.parts?.[0];
+            const base64Img = part?.inlineData?.data;
+            if (base64Img) {
+              const imageUrl = `data:${part?.inlineData?.mimeType || 'image/png'};base64,${base64Img}`;
+              const criticScore = this.evaluateCreativeQuality(input, prompt);
+              return {
+                success: true,
+                imageUrl,
+                promptUsed: prompt,
+                provider: 'Gemini 3.1 Flash Image',
+                criticScore,
+                cost: 0.03,
+                durationMs: Date.now() - startTime,
+              };
+            }
+          } else {
+            const errorData = await response.json().catch(() => null);
+            const errMsg = errorData?.error?.message || `HTTP ${response.status}`;
             return {
-              success: true,
-              imageUrl,
+              success: false,
               promptUsed: prompt,
-              provider: 'Gemini Imagen 3',
-              criticScore,
-              cost: 0.03,
+              provider: 'Gemini AI Studio',
+              error:
+                response.status === 429
+                  ? 'Your Gemini API quota limit was exceeded for image generation. Please supply or update your BYO API key, or render as a standard 1080×1350 flyer.'
+                  : `Gemini API returned error (${response.status}): ${errMsg}`,
               durationMs: Date.now() - startTime,
             };
           }
+        } catch (fetchErr: any) {
+          clearTimeout(timeoutId);
+          if (fetchErr.name === 'AbortError') {
+            return {
+              success: false,
+              promptUsed: prompt,
+              provider: 'Gemini AI Studio',
+              error: 'Image generation timed out after 12 seconds. You can update your Gemini API key or generate standard flyers.',
+              durationMs: Date.now() - startTime,
+            };
+          }
+          throw fetchErr;
         }
       }
 
-      // High-Fidelity SVG Art Direction Studio Generator fallback for validation & non-keyed execution
-      // Creates a unique, dynamic, brand-calibrated visual graphic reflecting the exact brand DNA
+      // Default high-fidelity SVG art direction studio generator
       const svgUrl = this.generateBrandCalibratedSvg(input);
       const criticScore = this.evaluateCreativeQuality(input, prompt);
-
-      // Simulate asynchronous rendering network latency
-      await new Promise((resolve) => setTimeout(resolve, 1200));
 
       return {
         success: true,

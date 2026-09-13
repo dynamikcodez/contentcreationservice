@@ -10,12 +10,14 @@ interface HeaderNavProps {
   onOpenOperator: () => void;
   onOpenOnboarding: () => void;
   onBackToLanding?: () => void;
+  onOpenApiKey?: () => void;
 }
 
 export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenOperator,
   onOpenOnboarding,
   onBackToLanding,
+  onOpenApiKey,
 }) => {
   const { activeBrandId, brands, selectBrand, plan, setPlan, byoApiKey } = useAppStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -99,13 +101,19 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <span className="font-semibold text-amber-400">{plan}</span>
           </div>
 
-          {/* BYO Key indicator */}
-          {byoApiKey ? (
-            <div className="flex items-center gap-1 px-2 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-medium" title="User BYO API Key Active">
-              <Key className="w-3 h-3" />
-              <span className="hidden sm:inline">BYO Key</span>
-            </div>
-          ) : null}
+          {/* BYO Key Button (Always Visible & Clickable) */}
+          <button
+            onClick={onOpenApiKey}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+              byoApiKey
+                ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/40 text-emerald-400'
+                : 'bg-slate-900 hover:bg-slate-800 border-amber-500/40 text-amber-400'
+            }`}
+            title={byoApiKey ? 'Gemini API Key Active (Click to view/change)' : 'Add your Gemini API Key'}
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span className="text-[11px] sm:text-xs font-medium">{byoApiKey ? 'BYO Key' : 'API Key'}</span>
+          </button>
 
           {/* Operator Console Trigger */}
           <button

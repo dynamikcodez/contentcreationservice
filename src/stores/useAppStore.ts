@@ -19,6 +19,7 @@ export interface PostItem {
   imageUrl?: string;
   creativeConcept?: CreativeConceptOutput;
   criticScore?: CreativeCriticOutput;
+  failureReason?: string;
 }
 
 export interface DesignerRequestItem {
@@ -132,13 +133,17 @@ export interface AppState {
   setCurrentView: (view: 'landing' | 'app') => void;
   feedbackToast: string | null;
   setFeedbackToast: (toast: string | null) => void;
+  apiKeyModalOpen: boolean;
+  apiKeyModalReason?: string;
+  openApiKeyModal: (reason?: string) => void;
+  closeApiKeyModal: () => void;
 
   // Actions
   selectBrand: (brandId: string) => Promise<void>;
   createBrandFromBrief: (brief: any) => Promise<void>;
   updatePost: (postId: string, updatedFields: Partial<PostItem>) => void;
   regeneratePostText: (postId: string) => void;
-  generateVisualForPost: (postId: string) => Promise<void>;
+  generateVisualForPost: (postId: string, forceStandardFlyer?: boolean) => Promise<void>;
   refineVisualWithMagicWand: (postId: string, prompt: string) => Promise<void>;
   generateSingleDay: (pillar: string, context: string) => void;
   submitDesignerRequest: (brandId: string, preferredDirection: string, postId?: string) => void;
@@ -161,13 +166,17 @@ export const useAppStore = create<AppState>()(
     maxImageGenerations: 10,
     designerRequestsUsed: 0,
   },
-  byoApiKey: '',
+  byoApiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
   validationMode: true,
 
   currentView: 'landing',
   setCurrentView: (view: 'landing' | 'app') => set({ currentView: view }),
   feedbackToast: null,
   setFeedbackToast: (toast: string | null) => set({ feedbackToast: toast }),
+  apiKeyModalOpen: false,
+  apiKeyModalReason: undefined,
+  openApiKeyModal: (reason?: string) => set({ apiKeyModalOpen: true, apiKeyModalReason: reason }),
+  closeApiKeyModal: () => set({ apiKeyModalOpen: false, apiKeyModalReason: undefined }),
 
   activeBrandId: DEMO_BRANDS[0].id,
   brands: DEMO_BRANDS.map((b) => ({
@@ -360,7 +369,7 @@ export const useAppStore = create<AppState>()(
     }));
   },
 
-  generateVisualForPost: async (postId: string) => {
+  generateVisualForPost: async (postId: string, forceStandardFlyer?: boolean) => {
     const { posts, activeBrandDna, activeBrandId, brands, byoApiKey, usage } = get();
     let brandDna = activeBrandDna;
     const brand = brands.find((b) => b.id === activeBrandId) || brands[0];
@@ -382,7 +391,7 @@ export const useAppStore = create<AppState>()(
     }
 
     set((state) => ({
-      posts: state.posts.map((p) => (p.id === postId ? { ...p, visualStatus: 'GENERATING' } : p)),
+      posts: state.posts.map((p) => (p.id === postId ? { ...p, visualStatus: 'GENERATING', failureReason: undefined } : p)),
     }));
 
     const provider = new GeminiImageProvider(byoApiKey);
@@ -404,12 +413,13 @@ export const useAppStore = create<AppState>()(
       cta: post.cta,
       pillar: post.pillar,
       dayNumber: post.dayNumber,
+      forceStandardFlyer,
     });
 
     if (res.success) {
       set((state) => ({
         usage: { ...state.usage, imageGenerations: state.usage.imageGenerations + 1 },
-        feedbackToast: `Day ${post.dayNumber} standard flyer generated!`,
+        feedbackToast: `Day ${post.dayNumber} visual ready!`,
         posts: state.posts.map((p) =>
           p.id === postId
             ? {
@@ -418,13 +428,26 @@ export const useAppStore = create<AppState>()(
                 imageUrl: res.imageUrl,
                 creativeConcept: concept,
                 criticScore: res.criticScore,
+                failureReason: undefined,
               }
             : p
         ),
       }));
     } else {
+      const errorMsg = res.error || 'Visual AI request timed out or quota exceeded.';
       set((state) => ({
-        posts: state.posts.map((p) => (p.id === postId ? { ...p, visualStatus: 'FAILED' } : p)),
+        posts: state.posts.map((p) =>
+          p.id === postId
+            ? {
+                ...p,
+                visualStatus: 'FAILED',
+                failureReason: errorMsg,
+              }
+            : p
+        ),
+        apiKeyModalOpen: true,
+        apiKeyModalReason: errorMsg,
+        feedbackToast: errorMsg,
       }));
     }
   },
@@ -468,6 +491,16 @@ export const useAppStore = create<AppState>()(
               }
             : p
         ),
+      }));
+    } else {
+      const errorMsg = res.error || 'Visual refinement timed out or quota exceeded.';
+      set((state) => ({
+        posts: state.posts.map((p) =>
+          p.id === postId ? { ...p, visualStatus: 'READY' } : p
+        ),
+        apiKeyModalOpen: true,
+        apiKeyModalReason: errorMsg,
+        feedbackToast: errorMsg,
       }));
     }
   },

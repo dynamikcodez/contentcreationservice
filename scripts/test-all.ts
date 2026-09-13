@@ -89,7 +89,7 @@ async function runAllTests() {
 
   // TEST 5: Creative Critic & Image Provider Engine
   try {
-    const provider = new GeminiImageProvider();
+    const provider = new GeminiImageProvider('MOCK_KEY');
     const dna = await generateBrandDNA({
       brandName: 'Test',
       industry: 'Legal',

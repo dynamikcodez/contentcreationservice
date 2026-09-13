@@ -20,6 +20,7 @@ import {
   ExternalLink,
   X,
   Layers,
+  Key,
 } from 'lucide-react';
 import {
   downloadPostFlyerAsPng,
@@ -35,12 +36,14 @@ interface CalendarFeedViewProps {
   onOpenEditModal: (post: PostItem) => void;
   onOpenMagicWandModal: (post: PostItem) => void;
   onOpenDesignerModal: (post: PostItem) => void;
+  onOpenApiKeyModal?: (reason?: string) => void;
 }
 
 export const CalendarFeedView: React.FC<CalendarFeedViewProps> = ({
   onOpenEditModal,
   onOpenMagicWandModal,
   onOpenDesignerModal,
+  onOpenApiKeyModal,
 }) => {
   const {
     posts,
@@ -340,17 +343,45 @@ export const CalendarFeedView: React.FC<CalendarFeedViewProps> = ({
                   </p>
                 </div>
               ) : post.visualStatus === 'FAILED' ? (
-                <div className="text-center p-6 space-y-3">
-                  <AlertCircle className="w-8 h-8 text-red-400 mx-auto" />
-                  <p className="text-xs text-red-300 font-medium">
-                    Visual generation failed gracefully.
-                  </p>
-                  <button
-                    onClick={() => generateVisualForPost(post.id)}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-semibold rounded-xl"
-                  >
-                    Retry Flyer Generation
-                  </button>
+                <div className="text-center p-5 space-y-3 bg-slate-900/80 rounded-2xl border border-amber-500/20 m-3 shadow-inner">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-400">
+                    <Key className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-amber-300">
+                      AI Generation Limit / Quota Notice
+                    </h4>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                      {post.failureReason || 'Gemini image generation timed out or exceeded free tier quota.'}
+                    </p>
+                  </div>
+                  <div className="space-y-2 pt-1">
+                    <button
+                      onClick={() => onOpenApiKeyModal?.(post.failureReason || 'AI image generation encountered a quota or timeout issue.')}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-md transition"
+                    >
+                      <Key className="w-3.5 h-3.5" />
+                      <span>Update / BYO Gemini API Key</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => generateVisualForPost(post.id, true)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition"
+                        title="Renders deterministic 1080x1350 vector marketing flyer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Render Standard Flyer</span>
+                      </button>
+                      <button
+                        onClick={() => generateVisualForPost(post.id)}
+                        className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition"
+                        title="Retry AI Generation"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Retry</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center p-6 space-y-3">

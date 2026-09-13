@@ -13,6 +13,7 @@ import { MagicWandModal } from '@/components/MagicWandModal';
 import { DesignerRequestModal } from '@/components/DesignerRequestModal';
 import { OperatorConsoleModal } from '@/components/OperatorConsoleModal';
 import { IntakeOnboardingModal } from '@/components/IntakeOnboardingModal';
+import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface DashboardAppProps {
@@ -24,6 +25,10 @@ export const DashboardApp: React.FC<DashboardAppProps> = ({ onBackToLanding }) =
     selectBrand,
     feedbackToast,
     setFeedbackToast,
+    apiKeyModalOpen,
+    apiKeyModalReason,
+    openApiKeyModal,
+    closeApiKeyModal,
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -62,6 +67,7 @@ export const DashboardApp: React.FC<DashboardAppProps> = ({ onBackToLanding }) =
           onOpenOperator={() => setShowOperator(true)}
           onOpenOnboarding={() => setShowOnboarding(true)}
           onBackToLanding={onBackToLanding}
+          onOpenApiKey={() => openApiKeyModal()}
         />
 
         {/* Main Tab Views */}
@@ -73,6 +79,7 @@ export const DashboardApp: React.FC<DashboardAppProps> = ({ onBackToLanding }) =
               onOpenEditModal={(post) => setEditingPost(post)}
               onOpenMagicWandModal={(post) => setWandPost(post)}
               onOpenDesignerModal={(post) => setDesignerPost(post)}
+              onOpenApiKeyModal={(reason?: string) => openApiKeyModal(reason)}
             />
           )}
 
@@ -117,6 +124,13 @@ export const DashboardApp: React.FC<DashboardAppProps> = ({ onBackToLanding }) =
             onClose={() => setShowOnboarding(false)}
           />
         )}
+
+        {/* BYO API Key Modal */}
+        <ApiKeyModal
+          isOpen={apiKeyModalOpen}
+          onClose={closeApiKeyModal}
+          reason={apiKeyModalReason}
+        />
 
         {/* Floating System Toast */}
         {feedbackToast && (
